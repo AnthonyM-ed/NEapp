@@ -1,0 +1,12 @@
+Juan Pérez|A
+María López|A
+Carlos Gómez|I
+Ana Martínez|A
+Luis Rodríguez|A
+Sofía Fernández|*
+Diego Torres|I
+Isabel Díaz|A
+Fernando Silva|A
+Laura González|I
+Pedro Romero|A
+Camila Morales|*
