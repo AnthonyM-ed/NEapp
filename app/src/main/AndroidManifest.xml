@@ -13,10 +13,13 @@
         android:theme="@style/Theme.NEapp"
         tools:targetApi="31">
         <activity
+            android:name=".FormularioActivity"
+            android:exported="false" />
+        <activity
             android:name=".MaestroPublicidadActivity"
             android:exported="false" />
         <activity
-            android:name=".ZonasActivity"
+            android:name=".ZonaActivity"
             android:exported="false" />
         <activity
             android:name=".ClienteActivity"

@@ -49,4 +49,5 @@ dependencies {
     implementation ("androidx.room:room-ktx:2.5.1")
     // Opcional: para soporte de RxJava
     implementation ("androidx.room:room-rxjava2:2.5.1")
+    implementation ("com.google.android.material:material:1.9.0")
 }

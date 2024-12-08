@@ -26,7 +26,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, ClienteActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -34,9 +33,8 @@ public class HomeActivity extends AppCompatActivity {
         buttonGoToZonas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, ZonasActivity.class);
+                Intent intent = new Intent(HomeActivity.this, ZonaActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -46,7 +44,6 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, MaestroPublicidadActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 

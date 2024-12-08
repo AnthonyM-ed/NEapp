@@ -9,15 +9,39 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.neapp.R;
 import com.example.neapp.model.ent.ClienteEntity;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClienteAdapter extends RecyclerView.Adapter<ClienteAdapter.ClienteViewHolder> {
     private final List<ClienteEntity> clientes;
+    private List<ClienteEntity> filteredClientes;
     private final Context context;
+    private OnItemClickListener listener;
+    private ClienteEntity selectedCliente;
 
     public ClienteAdapter(Context context, List<ClienteEntity> clientes) {
         this.context = context;
         this.clientes = clientes;
+        this.filteredClientes = new ArrayList<>(clientes);
+    }
+
+    public void updateClientes(List<ClienteEntity> nuevosClientes) {
+        this.filteredClientes.clear(); // Limpiar la lista filtrada
+        this.filteredClientes.addAll(nuevosClientes); // Agregar los nuevos clientes filtrados
+        notifyDataSetChanged(); // Notificar al adaptador que los datos han cambiado
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(ClienteEntity cliente);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setSelectedCliente(ClienteEntity cliente) {
+        this.selectedCliente = cliente; // Método para actualizar el cliente seleccionado
     }
 
     @NonNull
@@ -29,22 +53,29 @@ public class ClienteAdapter extends RecyclerView.Adapter<ClienteAdapter.ClienteV
 
     @Override
     public void onBindViewHolder(@NonNull ClienteViewHolder holder, int position) {
-        ClienteEntity cliente = clientes.get(position);
-        holder.itemCodigo.setText("CLI" + cliente.getCliCod()); // Ajusta este método según tu entidad
+        ClienteEntity cliente = filteredClientes.get(position);
+        holder.itemCodigo.setText("CLI" + cliente.getCliCod());
         holder.itemNombre.setText(cliente.getCliNom());
         holder.itemEstado.setText(cliente.getCliEstReg());
 
-        // Cambiar el color del texto en función del estado
-        if ("I".equals(cliente.getCliEstReg())) {
-            holder.itemCodigo.setTextColor(context.getResources().getColor(R.color.gray));
-            holder.itemNombre.setTextColor(context.getResources().getColor(R.color.gray)); // Cambia "gris" por el color que desees
-            holder.itemEstado.setTextColor(context.getResources().getColor(R.color.gray)); // Cambia "gris" por el color que desees
+        // Cambiar el color de fondo si el cliente está seleccionado
+        if (cliente.equals(selectedCliente)) {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.selected)); // Color de selección
+        } else {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.white)); // Color por defecto
         }
+
+        // Configurar el clic en la fila
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(cliente);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return clientes.size();
+        return filteredClientes.size();
     }
 
     static class ClienteViewHolder extends RecyclerView.ViewHolder {

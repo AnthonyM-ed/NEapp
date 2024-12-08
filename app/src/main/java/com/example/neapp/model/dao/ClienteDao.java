@@ -14,9 +14,15 @@ import java.util.List;
 @Dao
 public interface ClienteDao {
 
+    @Query("SELECT * FROM Cliente")
+    LiveData<List<ClienteEntity>> getAllClientes();
+
     // Filtrar registros con estado "*"
     @Query("SELECT * FROM Cliente WHERE cliEstReg != '*'")
-    LiveData<List<ClienteEntity>> getAllClientes();
+    LiveData<List<ClienteEntity>> getNonDeletedClientes();
+
+    @Query("SELECT * FROM Cliente WHERE cliEstReg = '*'")
+    LiveData<List<ClienteEntity>> getDeletedClientes();
 
     @Query("SELECT * FROM Cliente WHERE cliCod = :id")
     LiveData<ClienteEntity> getClienteById(int id);
@@ -29,10 +35,6 @@ public interface ClienteDao {
 
     @Delete
     void deleteCliente(ClienteEntity cliente);
-
-    // Obtener solo nombres de clientes con estado "A" (Activos)
-    @Query("SELECT cliNom FROM Cliente WHERE cliEstReg = 'A'")
-    LiveData<List<String>> getNombresClientesActivos();
 
     // Obtener nombre del cliente por su código
     @Query("SELECT cliNom FROM Cliente WHERE cliCod = :codigo")

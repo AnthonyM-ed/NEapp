@@ -21,31 +21,31 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.neapp.adapter.ClienteAdapter;
+import com.example.neapp.adapter.ZonaAdapter;
 import com.example.neapp.model.database.AppDatabase;
-import com.example.neapp.model.ent.ClienteEntity;
-import com.example.neapp.viewmodel.ClienteViewModel;
+import com.example.neapp.model.ent.ZonaEntity;
+import com.example.neapp.viewmodel.ZonaViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClienteActivity extends AppCompatActivity {
+public class ZonaActivity extends AppCompatActivity {
     private ImageView backButton, refreshButton, filterButton;
     private LinearLayout filters;
     private Spinner spinnerCodigo, spinnerNombre, spinnerEstado;
     private FloatingActionButton fabAdd, fabEdit, fabDelete, fabReaddRecord;
     private RecyclerView recyclerView;
-    private ClienteAdapter adapter;
-    private ClienteViewModel clienteViewModel;
-    private ClienteEntity selectedCliente;
+    private ZonaAdapter adapter;
+    private ZonaViewModel clienteViewModel;
+    private ZonaEntity selectedZona;
     private EditText searchBar;
     private TextView textEliminarFiltros;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cliente);
+        setContentView(R.layout.activity_zona);
 
         backButton = findViewById(R.id.backButton);
         refreshButton = findViewById(R.id.refreshButton);
@@ -55,7 +55,7 @@ public class ClienteActivity extends AppCompatActivity {
         spinnerCodigo = findViewById(R.id.spinnerCodigo);
         spinnerNombre = findViewById(R.id.spinnerNombre);
         spinnerEstado = findViewById(R.id.spinnerEstado);
-        recyclerView = findViewById(R.id.recyclerViewClientes);
+        recyclerView = findViewById(R.id.recyclerViewZonas);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         fabAdd = findViewById(R.id.fab_add_record);
         fabEdit = findViewById(R.id.fab_edit_record);
@@ -64,7 +64,7 @@ public class ClienteActivity extends AppCompatActivity {
         textEliminarFiltros = findViewById(R.id.eliminarFiltrosText);
 
         backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ClienteActivity.this, HomeActivity.class);
+            Intent intent = new Intent(ZonaActivity.this, HomeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         });
@@ -101,17 +101,17 @@ public class ClienteActivity extends AppCompatActivity {
             @NonNull
             @Override
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) new ClienteViewModel(database);
+                return (T) new ZonaViewModel(database);
             }
-        }).get(ClienteViewModel.class);
+        }).get(ZonaViewModel.class);
 
-        // Observa los cambios en la lista de clientes
-        clienteViewModel.getAllClientes().observe(this, clientes -> {
+        // Observa los cambios en la lista de zonas
+        clienteViewModel.getAllZonas().observe(this, zonas -> {
             if (adapter == null) {
-                adapter = new ClienteAdapter(ClienteActivity.this, clientes);
+                    adapter = new ZonaAdapter(ZonaActivity.this, zonas);
                 recyclerView.setAdapter(adapter);
             } else {
-                adapter.updateClientes(clientes); // Actualiza el adaptador si ya está inicializado
+                adapter.updateZonas(zonas); // Actualiza el adaptador si ya está inicializado
             }
             configurarListeners(); // Configura los listeners después de inicializar el adaptador
         });
@@ -138,30 +138,30 @@ public class ClienteActivity extends AppCompatActivity {
         spinnerEstado.setOnItemSelectedListener(createFilterListener(null));
     }
 
-    private void agregarCliente() {
+    private void agregarZona() {
         Intent intent = new Intent(this, FormularioActivity.class);
-        intent.putExtra(FormularioActivity.EXTRA_FRAGMENT_TYPE, "crear_cliente");
+        intent.putExtra(FormularioActivity.EXTRA_FRAGMENT_TYPE, "crear_zona");
         startActivityForResult(intent, 1);
     }
 
-    private void editarCliente(ClienteEntity cliente) {
+    private void editarZona(ZonaEntity zona) {
         Intent intent = new Intent(this, FormularioActivity.class);
-        intent.putExtra(FormularioActivity.EXTRA_FRAGMENT_TYPE, "editar_cliente");
+        intent.putExtra(FormularioActivity.EXTRA_FRAGMENT_TYPE, "editar_zona");
 
         Bundle data = new Bundle();
-        data.putInt("cli_cod", cliente.getCliCod());
-        data.putString("cli_nom", cliente.getCliNom());
-        data.putString("cli_est", cliente.getCliEstReg());
+        data.putInt("zona_cod", zona.getZonCod());
+        data.putString("zona_nom", zona.getZonNom());
+        data.putString("zona_est", zona.getZonEstReg());
         intent.putExtra(FormularioActivity.EXTRA_DATA, data);
         startActivity(intent);
     }
 
-    private void eliminarCliente(ClienteEntity cliente) {
-        if (cliente != null) {
-            cliente.setCliEstReg("*"); // Marcar como eliminado
-            clienteViewModel.updateCliente(cliente); // Actualiza en la base de datos
+    private void eliminarZona(ZonaEntity zona) {
+        if (zona != null) {
+            zona.setZonEstReg("*"); // Marcar como eliminado
+            clienteViewModel.updateZona(zona); // Actualiza en la base de datos
             resetFilters();
-            Toast.makeText(this, "Cliente eliminado: " + cliente.getCliNom(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zona eliminada: " + zona.getZonNom(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -175,12 +175,12 @@ public class ClienteActivity extends AppCompatActivity {
     }
 
     private void configurarListeners() {
-        adapter.setOnItemClickListener(cliente -> {
-            if (selectedCliente != null && selectedCliente.equals(cliente)) {
+        adapter.setOnItemClickListener(zonas -> {
+            if (selectedZona != null && selectedZona.equals(zonas)) {
                 resetSelection();
             } else {
-                selectedCliente = cliente;
-                if (cliente.getCliEstReg().equals("*")) {
+                selectedZona = zonas;
+                if (zonas.getZonEstReg().equals("*")) {
                     fabReaddRecord.setVisibility(View.VISIBLE);
                     fabEdit.setVisibility(View.GONE);
                     fabDelete.setVisibility(View.GONE);
@@ -189,24 +189,24 @@ public class ClienteActivity extends AppCompatActivity {
                     fabEdit.setVisibility(View.VISIBLE);
                     fabDelete.setVisibility(View.VISIBLE);
                 }
-                adapter.setSelectedCliente(selectedCliente);
+                adapter.setSelectedZona(selectedZona);
                 adapter.notifyDataSetChanged();
 
                 // Configurar listeners para los botones
-                fabEdit.setOnClickListener(v -> { editarCliente(selectedCliente); resetSelection(); });
-                fabDelete.setOnClickListener(v -> { eliminarCliente(selectedCliente); resetSelection(); });
-                fabReaddRecord.setOnClickListener(v -> { reactivarCliente(selectedCliente); resetSelection(); });
+                fabEdit.setOnClickListener(v -> { editarZona(selectedZona); resetSelection(); });
+                fabDelete.setOnClickListener(v -> { eliminarZona(selectedZona); resetSelection(); });
+                fabReaddRecord.setOnClickListener(v -> { reactivarZona(selectedZona); resetSelection(); });
             }
         });
 
-        fabAdd.setOnClickListener(v -> { agregarCliente(); resetSelection(); });
+        fabAdd.setOnClickListener(v -> { agregarZona(); resetSelection(); });
     }
 
-    private void reactivarCliente(ClienteEntity cliente) {
-        if (cliente != null) {
-            cliente.setCliEstReg("A"); // Cambia "*" a "A" (activo)
-            clienteViewModel.updateCliente(cliente);
-            Toast.makeText(this, "Cliente reactivado: " + cliente.getCliNom(), Toast.LENGTH_SHORT).show();
+    private void reactivarZona(ZonaEntity zona) {
+        if (zona != null) {
+            zona.setZonEstReg("A"); // Cambia "*" a "A" (activo)
+            clienteViewModel.updateZona(zona);
+            Toast.makeText(this, "Zona reactivada: " + zona.getZonNom(), Toast.LENGTH_SHORT).show();
             fabReaddRecord.setVisibility(View.GONE); // Ocultar el botón después de la reactivación
             resetFilters();
         }
@@ -215,21 +215,21 @@ public class ClienteActivity extends AppCompatActivity {
     private void filterClientes(String query) {
         if (query.isEmpty()) {
             // Si el campo de búsqueda está vacío, mostrar todos los clientes
-            clienteViewModel.getAllClientes().observe(this, clientes -> adapter.updateClientes(clientes));
+            clienteViewModel.getAllZonas().observe(this, clientes -> adapter.updateZonas(clientes));
             return;
         }
 
-        List<ClienteEntity> filteredResults = new ArrayList<>();
-        clienteViewModel.getAllClientes().observe(this, allClientes -> {
-            if (allClientes != null) {
-                for (ClienteEntity cliente : allClientes) {
-                    String cliCod = "CLI" + cliente.getCliCod();
+        List<ZonaEntity> filteredResults = new ArrayList<>();
+        clienteViewModel.getAllZonas().observe(this, allZonas -> {
+            if (allZonas != null) {
+                for (ZonaEntity zona : allZonas) {
+                    String cliCod = "ZON" + zona.getZonCod();
                     if (cliCod.toLowerCase().contains(query.toLowerCase()) ||
-                            cliente.getCliNom().toLowerCase().contains(query.toLowerCase())) {
-                        filteredResults.add(cliente);
+                            zona.getZonNom().toLowerCase().contains(query.toLowerCase())) {
+                        filteredResults.add(zona);
                     }
                 }
-                adapter.updateClientes(filteredResults);
+                adapter.updateZonas(filteredResults);
             }
         });
     }
@@ -258,46 +258,46 @@ public class ClienteActivity extends AppCompatActivity {
 
     private void applyFilters() {
         // Eliminar observadores anteriores de clientes eliminados
-        clienteViewModel.getDeletedClientes().removeObservers(this);
+        clienteViewModel.getDeletedZonas().removeObservers(this);
 
         // Obtenemos la lista completa de clientes (que es un LiveData)
-        clienteViewModel.getAllClientes().observe(this, allClientes -> {
-            List<ClienteEntity> filteredClientes = new ArrayList<>();
+        clienteViewModel.getAllZonas().observe(this, allZonas -> {
+            List<ZonaEntity> filteredZonas = new ArrayList<>();
 
             // Si hay clientes, procedemos a filtrar
-            if (allClientes != null) {
-                filteredClientes.addAll(allClientes);
+            if (allZonas != null) {
+                filteredZonas.addAll(allZonas);
 
                 // Filtrar por estado (Activo/Inactivo/Eliminado)
                 String estadoFilter = spinnerEstado.getSelectedItem().toString();
                 if (estadoFilter.equals("Eliminado")) {
-                    clienteViewModel.getDeletedClientes().observe(this, deletedClientes -> {
-                        adapter.updateClientes(deletedClientes);
+                    clienteViewModel.getDeletedZonas().observe(this, deletedZonas -> {
+                        adapter.updateZonas(deletedZonas);
                     });
                     return; // Salimos aquí porque no aplicamos más filtros
                 } else if (!estadoFilter.equals("Ninguno")) {
                     String estadoReal = estadoFilter.equals("Activo") ? "A" : "I";
-                    filteredClientes.removeIf(cliente -> !cliente.getCliEstReg().equalsIgnoreCase(estadoReal));
+                    filteredZonas.removeIf(cliente -> !cliente.getZonEstReg().equalsIgnoreCase(estadoReal));
                 }
 
                 // Filtrar por código
                 String codigoFilter = spinnerCodigo.getSelectedItem().toString();
                 if (codigoFilter.equals("Mayor a menor")) {
-                    filteredClientes.sort((a, b) -> Integer.compare(b.getCliCod(), a.getCliCod()));
+                    filteredZonas.sort((a, b) -> Integer.compare(b.getZonCod(), a.getZonCod()));
                 } else if (codigoFilter.equals("Menor a mayor")) {
-                    filteredClientes.sort((a, b) -> Integer.compare(a.getCliCod(), b.getCliCod()));
+                    filteredZonas.sort((a, b) -> Integer.compare(a.getZonCod(), b.getZonCod()));
                 }
 
                 // Filtrar por nombre
                 String nombreFilter = spinnerNombre.getSelectedItem().toString();
                 if (nombreFilter.equals("A-Z")) {
-                    filteredClientes.sort((a, b) -> a.getCliNom().compareToIgnoreCase(b.getCliNom()));
+                    filteredZonas.sort((a, b) -> a.getZonNom().compareToIgnoreCase(b.getZonNom()));
                 } else if (nombreFilter.equals("Z-A")) {
-                    filteredClientes.sort((a, b) -> b.getCliNom().compareToIgnoreCase(a.getCliNom()));
+                    filteredZonas.sort((a, b) -> b.getZonNom().compareToIgnoreCase(a.getZonNom()));
                 }
 
                 // Actualiza el adaptador con la lista filtrada
-                adapter.updateClientes(filteredClientes);
+                adapter.updateZonas(filteredZonas);
             }
         });
     }
@@ -307,12 +307,12 @@ public class ClienteActivity extends AppCompatActivity {
         spinnerCodigo.setSelection(0);
         spinnerNombre.setSelection(0);
         spinnerEstado.setSelection(0);
-        clienteViewModel.getAllClientes().observe(this, clientes -> adapter.updateClientes(clientes));
+        clienteViewModel.getAllZonas().observe(this, clientes -> adapter.updateZonas(clientes));
     }
 
     private void resetSelection() {
-        selectedCliente = null;
-        adapter.setSelectedCliente(null);
+        selectedZona = null;
+        adapter.setSelectedZona(null);
         fabEdit.setVisibility(View.GONE);
         fabDelete.setVisibility(View.GONE);
         fabReaddRecord.setVisibility(View.GONE);
